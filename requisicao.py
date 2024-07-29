@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from banco_dados import bd
 
 
 
@@ -14,6 +15,8 @@ class principal:
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
+        self.dados = bd()
+        self.dados.create_table()
 
     def inicio(self):
         resultado = []
@@ -38,6 +41,9 @@ class principal:
                     preco = preco.text
                     contador += 1
                     resultado.append((nome,preco))
+                    
+                    self.dados.inserir_table(nome, preco)
+
                     # print(contador, nome)
                     # print(preco, "\n")
                 else:
@@ -45,3 +51,7 @@ class principal:
             return resultado
         else:
             print(f'A solicitação falhou com o status: {response.status_code}')
+
+
+bot = principal(usuario='rtx 4060')
+bot.inicio()

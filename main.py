@@ -7,6 +7,7 @@ def main(page: Page):
     page.window.always_on_top = True
     page.window.width = 380
     page.window.height = 710
+    page.theme_mode = ThemeMode.DARK
     # page.window.center()
     
     # Titulo do aplicativo
@@ -73,11 +74,14 @@ def main(page: Page):
             print(preco, "\n")
             lista.controls.append(
                 Container(
-                    Column([
-                        Text(value=nome)
-                    ])
-                )
+                content=Column([
+                    Text(value=nome),
+                    Text(value=preco)
+                ])
             )
+            )
+            
+        page.update()
         
     lista = GridView(
         expand=1,
