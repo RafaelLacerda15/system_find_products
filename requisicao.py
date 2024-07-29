@@ -1,35 +1,47 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Defina a URL base para o Google Shopping
-url = 'https://www.google.com/search'
 
-# Defina a consulta de pesquisa
-digitar = 'rtx 4060'
 
-# Parâmetros da consulta
-params = {
-    'q': digitar,
-    'tbm': 'shop'  # 'tbm=shop' indica que estamos procurando na aba de compras
-}
+class principal:
+    def __init__(self, usuario):
+        super().__init__()
 
-# Envie a solicitação GET com os parâmetros de pesquisa
-response = requests.get(url, params=params)
+        # Defina a URL base para o Google Shopping
+        self.url = f'https://www.google.com/search?q={usuario}&tbm=shop'
+        self.url_modificado = self.url.replace(" ", "+")
+        # Cabeçalhos HTTP para simular um navegador
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
 
-# Verifique se a solicitação foi bem-sucedida
-if response.status_code == 200:
-    # Analise a resposta HTML com BeautifulSoup
-    soup = BeautifulSoup(response.text, 'html.parser')
-    produtos = soup.find_all('div', class_='sh-dgr__gr-auto sh-dgr__grid-result')
-    print(produtos)
-    for produto in produtos:
-        nome = produto.find('div', class_='Lq5OHe eaGTj translate-content')
-        if nome:
+    def inicio(self):
+        resultado = []
+        # Envie a solicitação GET para a URL
+        response = requests.get(self.url_modificado, headers=self.headers)
+        # Verifique se a solicitação foi bem-sucedida
+        if response.status_code == 200:
+            # Analise a resposta HTML com BeautifulSoup
+            soup = BeautifulSoup(response.text, 'html.parser')
             
-            print(nome.text)
+            # Encontre todos os elementos de resultado
+            element_page = soup.find_all('div', class_='i0X6df')
+            contador = 0
+            for x in element_page:
+                nome = x.find('div', class_='EI11Pd')
+                preco = x.find('span', class_='a8Pemb OFFNJ')
+                img = x.find('div', class_='FM6uVc')
+                
+                # Verifique se as tags e classes foram encontradas
+                if nome and preco and img:
+                    nome = nome.text
+                    preco = preco.text
+                    contador += 1
+                    resultado.append((nome,preco))
+                    # print(contador, nome)
+                    # print(preco, "\n")
+                else:
+                    print("Alguma informação não foi encontrada.")
+            return resultado
         else:
-            print('Não encontrado')
-    # Imprima o título da página para verificar se a pesquisa foi bem-sucedida
-    # print(soup.title.text)
-else:
-    print('A solicitação falhou com o status:', response.status_code)
+            print(f'A solicitação falhou com o status: {response.status_code}')

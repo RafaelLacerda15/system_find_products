@@ -1,4 +1,5 @@
 from flet import *
+from requisicao import principal
 
 def main(page: Page):
     
@@ -61,10 +62,36 @@ def main(page: Page):
     def fecharNot(e):
         page.close(notificacao)
         page.update()
+    def fazerPesquisa(e):
+        valor_pesquisa = pesquisa.value
+        
+        bot = principal(usuario=valor_pesquisa)
+        resultado = bot.inicio()
+
+        for nome, preco in resultado:
+            print(nome)
+            print(preco, "\n")
+            lista.controls.append(
+                Container(
+                    Column([
+                        Text(value=nome)
+                    ])
+                )
+            )
+        
+    lista = GridView(
+        expand=1,
+        runs_count=5,
+        max_extent=200,
+        child_aspect_ratio=1.0,
+        spacing=50,
+        run_spacing=5,
+    )
     pesquisa = TextField(width=250, height=45, border_radius=20,
                          color='white', text_align=TextAlign.CENTER, text_vertical_align=VerticalAlignment.CENTER ,hint_text='O que você está procurando?', border_color='white'
                          )
-    botão_pesquisar = IconButton(icon=icons.SEND, hover_color='green')
+    botão_pesquisar = IconButton(
+        icon=icons.SEND, hover_color='green', on_click=fazerPesquisa)
     filtro = RadioGroup(content=Column([
         Radio(value='Preço: do menor para o maior', label='Preço: do menor para o maior'),
         Radio(value='Preço: do maior para o menor', label='Preço: do maior para o menor')
@@ -93,7 +120,8 @@ def main(page: Page):
                         border_radius=10,
                         content=Container(
                             Column([
-                                IconButton(icon=icons.FILTER_LIST, on_click=abirNot)
+                                IconButton(icon=icons.FILTER_LIST, on_click=abirNot),
+                                lista
                             ],horizontal_alignment=CrossAxisAlignment.END)
                         )
                     )
