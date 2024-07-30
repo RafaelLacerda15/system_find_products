@@ -12,7 +12,8 @@ def main(page: Page):
     
     # Titulo do aplicativo
     page.appbar = AppBar(title=Text(value="System Find Product", weight=FontWeight.BOLD), center_title=True, bgcolor='red')
-    
+    snack_bar = SnackBar(Text(value='Digite um produto.'))
+    page.overlay.append(snack_bar)
     # Função para trocar de janela
     def changeWindow(e):
         index = e.control.selected_index
@@ -65,7 +66,11 @@ def main(page: Page):
         page.update()
     def fazerPesquisa(e):
         valor_pesquisa = pesquisa.value
+        if not valor_pesquisa:
+            snack_bar.open = True
+            page.update()
         
+        lista.controls.clear()
         bot = principal(usuario=valor_pesquisa)
         resultado = bot.inicio()
 
@@ -204,7 +209,7 @@ def main(page: Page):
                                 Row([
                                     Column([
                                         gitHub, 
-                                        TextButton(text='GITHUB'),
+                                        TextButton(text='GITHUB', url='https://github.com/RafaelLacerda15'),
                                     ], horizontal_alignment=CrossAxisAlignment.CENTER)
                                 ], alignment=MainAxisAlignment.CENTER),
                             ])

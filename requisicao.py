@@ -15,10 +15,12 @@ class principal:
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         }
-        self.dados = bd()
-        self.dados.create_table()
+        
 
     def inicio(self):
+        self.dados = bd()
+        self.dados.create_table(table='resultados')
+        
         resultado = []
         # Envie a solicitação GET para a URL
         response = requests.get(self.url_modificado, headers=self.headers)
@@ -51,7 +53,3 @@ class principal:
             return resultado
         else:
             print(f'A solicitação falhou com o status: {response.status_code}')
-
-
-bot = principal(usuario='rtx 4060')
-bot.inicio()
