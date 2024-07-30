@@ -87,7 +87,8 @@ def main(page: Page):
             )
             
         page.update()
-        
+    def filtrar(e):
+        pass
     lista = GridView(
         expand=1,
         runs_count=5,
