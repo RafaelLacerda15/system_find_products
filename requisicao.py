@@ -30,21 +30,24 @@ class principal:
             soup = BeautifulSoup(response.text, 'html.parser')
             
             # Encontre todos os elementos de resultado
-            element_page = soup.find_all('div', class_='i0X6df')
+            element_page = soup.find_all('div', class_='sh-pr__product-results-grid sh-pr__product-results')
             contador = 0
             for x in element_page:
                 nome = x.find('div', class_='EI11Pd')
                 preco = x.find('span', class_='a8Pemb OFFNJ')
                 img = x.find('div', class_='FM6uVc')
-                
+                link = x.find('div', class_='mnIHsc')
+                href = link.get('href')
+                print(href)
                 # Verifique se as tags e classes foram encontradas
-                if nome and preco and img:
+                if nome and preco:
                     nome = nome.text
                     preco = preco.text
+                    
                     contador += 1
                     resultado.append((nome,preco))
                     
-                    self.dados.inserir_table(nome, preco)
+                    # self.dados.inserir_table(nome, preco)
 
                     # print(contador, nome)
                     # print(preco, "\n")
@@ -53,3 +56,6 @@ class principal:
             return resultado
         else:
             print(f'A solicitação falhou com o status: {response.status_code}')
+
+bot = principal(usuario='rtx 4060')
+bot.inicio()
