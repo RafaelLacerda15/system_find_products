@@ -30,26 +30,39 @@ class principal:
             soup = BeautifulSoup(response.text, 'html.parser')
             
             # Encontre todos os elementos de resultado
-            element_page = soup.find_all('div', class_='sh-pr__product-results-grid sh-pr__product-results')
+            element_page = soup.find_all('div', class_='sh-dgr__content')
             contador = 0
             for x in element_page:
+                # nome produto
                 nome = x.find('div', class_='EI11Pd')
+                # preço produto
                 preco = x.find('span', class_='a8Pemb OFFNJ')
-                img = x.find('div', class_='FM6uVc')
+                # url produto
                 link = x.find('div', class_='mnIHsc')
-                href = link.get('href')
-                print(href)
+                href_a = link.find('a')
+                href = href_a.get('href')
+                # nome site produto
+                site = x.find('div', class_='aULzUe IuHnof')
+                
                 # Verifique se as tags e classes foram encontradas
-                if nome and preco:
+                if nome and preco and href_a:
+                    # nome produto
                     nome = nome.text
+                    # preço produto
                     preco = preco.text
+                    # url produto modificado
+                    href_modificado = f'https://www.google.com{href}'
+                    # nome site produto
+                    site_certo = site.text
                     
                     contador += 1
-                    resultado.append((nome,preco))
+                    resultado.append((nome, preco, href_modificado, site_certo))
                     
-                    # self.dados.inserir_table(nome, preco)
+                    self.dados.inserir_table(nome, preco, href_modificado, site_certo)
 
                     # print(contador, nome)
+                    # print(site_certo)
+                    # print(href_modificado)
                     # print(preco, "\n")
                 else:
                     print("Alguma informação não foi encontrada.")
@@ -57,5 +70,5 @@ class principal:
         else:
             print(f'A solicitação falhou com o status: {response.status_code}')
 
-bot = principal(usuario='rtx 4060')
-bot.inicio()
+# bot = principal(usuario='rtx 4060')
+# bot.inicio()

@@ -7,6 +7,9 @@ def main(page: Page):
     page.window.always_on_top = True
     page.window.width = 380
     page.window.height = 710
+    
+    page.window.min_width = 380
+    page.window.min_height = 710
     page.theme_mode = ThemeMode.DARK
     # page.window.center()
     
@@ -14,6 +17,7 @@ def main(page: Page):
     page.appbar = AppBar(title=Text(value="System Find Product", weight=FontWeight.BOLD), center_title=True, bgcolor='red')
     snack_bar = SnackBar(Text(value='Digite um produto.'))
     page.overlay.append(snack_bar)
+    
     # Função para trocar de janela
     def changeWindow(e):
         index = e.control.selected_index
@@ -69,26 +73,28 @@ def main(page: Page):
         if not valor_pesquisa:
             snack_bar.open = True
             page.update()
-        
+        texto_resultado.visible = True
         lista.controls.clear()
         bot = principal(usuario=valor_pesquisa)
         resultado = bot.inicio()
 
-        for nome, preco in resultado:
-            print(nome)
-            print(preco, "\n")
+        for nome, preco, link, site in resultado:
             lista.controls.append(
                 Container(
-                content=Column([
-                    Text(value=nome),
-                    Text(value=preco)
-                ])
-            )
+                    bgcolor=colors.WHITE12,
+                    border_radius=15,
+                    content=Column([
+                        Text(value=nome, text_align=TextAlign.CENTER, color='white'),
+                        Text(value=preco, text_align=TextAlign.CENTER, color='white'),
+                        TextButton(text=site, url=link, style=ButtonStyle(color='white',bgcolor='blue'))
+                    ], horizontal_alignment=CrossAxisAlignment.CENTER)
+                )
             )
             
         page.update()
     def filtrar(e):
         pass
+        
     lista = GridView(
         expand=1,
         runs_count=5,
@@ -100,6 +106,8 @@ def main(page: Page):
     pesquisa = TextField(width=250, height=45, border_radius=20,
                          color='white', text_align=TextAlign.CENTER, text_vertical_align=VerticalAlignment.CENTER ,hint_text='O que você está procurando?', border_color='white'
                          )
+    texto_resultado = Text(value='Resultado', weight=FontWeight.BOLD)
+    texto_resultado.visible = False
     botão_pesquisar = IconButton(
         icon=icons.SEND, hover_color='green', on_click=fazerPesquisa)
     filtro = RadioGroup(content=Column([
@@ -110,7 +118,7 @@ def main(page: Page):
         padding=50,
         content=Column([
             filtro,
-            ElevatedButton(text="Aplicar", on_click=fecharNot)
+            ElevatedButton(text="Aplicar", on_click=filtrar('asc'))
         ], tight=True)
     ))
     window_pesquisar = ResponsiveRow([
@@ -118,25 +126,36 @@ def main(page: Page):
             height=1000,  # altura
             width=350,  # Largura
             bgcolor='Red',
-            content=Container(
-                Column([
-                    Container(
-                        Row([pesquisa,botão_pesquisar], alignment=MainAxisAlignment.CENTER)
-                    ),
-                    Container(
-                        width=350,
-                        height=470,
-                        bgcolor=colors.BLACK12,
-                        border_radius=10,
-                        content=Container(
-                            Column([
-                                IconButton(icon=icons.FILTER_LIST, on_click=abirNot),
-                                lista
-                            ],horizontal_alignment=CrossAxisAlignment.END)
-                        )
-                    )
-                ],horizontal_alignment=CrossAxisAlignment.CENTER )
-            )
+            content=ResponsiveRow([
+                Container(
+                    Column([
+                        Container(
+                            Row([pesquisa, botão_pesquisar],
+                                alignment=MainAxisAlignment.CENTER)
+                        ),
+                        ResponsiveRow([
+                            Container(
+                                width=350,
+                                height=470,
+                                bgcolor=colors.BLACK12,
+                                border_radius=10,
+                                content=Container(
+                                    Column([
+                                        Container(
+                                            Row([
+                                                texto_resultado,
+                                                Container(width=100),
+                                                IconButton(icon=icons.FILTER_LIST, on_click=abirNot)
+                                            ],alignment=MainAxisAlignment.END)
+                                        ),
+                                        lista
+                                    ], horizontal_alignment=CrossAxisAlignment.END)
+                                )
+                            )
+                        ])
+                    ], horizontal_alignment=CrossAxisAlignment.CENTER)
+                )
+            ])
         )
     ])
     
@@ -223,4 +242,4 @@ def main(page: Page):
     
     page.add(window_home, window_pesquisar, window_dados, window_sobre)
     
-app(target=main, port=80)
+app(target=main)

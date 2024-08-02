@@ -10,12 +10,14 @@ class bd:
         self.c.execute(f'''CREATE TABLE IF NOT EXISTS {table} (
                         id INTEGER PRIMARY KEY,
                         nome TEXT UNIQUE,
-                        preco TEXT
+                        preco TEXT,
+                        link TEXT,
+                        site TEXT
                         )''')
         self.con.commit()
     
-    def inserir_table(self, nome, preco):
-        self.c.execute('''INSERT OR IGNORE INTO resultados(nome, preco) VALUES (?,?)''', (nome, preco))
+    def inserir_table(self, nome, preco, link, site):
+        self.c.execute('''INSERT OR IGNORE INTO resultados(nome, preco, link, site) VALUES (?,?,?,?)''', (nome, preco, link, site))
         self.con.commit()
 
     def selectAll(self):
