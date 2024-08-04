@@ -1,10 +1,9 @@
 from flet import *
 from requisicao import principal
 from banco_dados import bd
-from threading import Thread
 
 def main(page: Page):
-    
+    global resultado
     page.padding = 0
     page.window.always_on_top = True
     page.window.width = 380
@@ -85,7 +84,7 @@ def main(page: Page):
         lista.controls.clear()
         bot = principal(usuario=valor_pesquisa)
         resultado = bot.inicio()
-
+        
         for nome, preco, link, site in resultado:
             contador += 1
             lista.controls.append(
@@ -106,11 +105,11 @@ def main(page: Page):
         lista.controls.clear()
         page.update()
     def filtrar(e):
-        if filtro.value == "1":
-            print('Escolheu: 1')
-        elif filtro.value == "2":
-            print('Escolheu: 2')
-            
+            evento = e.control
+            if evento.value == '1':
+                print(f'Escolheu o valor: {evento}')
+            elif evento.value == '2':
+                print(f'Escolheu o valor: {evento}')
     lista = GridView(
         expand=1,
         runs_count=5,
@@ -129,12 +128,11 @@ def main(page: Page):
     filtro = RadioGroup(content=Column([
         Radio(value='1', label='Preço: do menor para o maior'),
         Radio(value='2', label='Preço: do maior para o menor')
-    ]))
+    ]), on_change=filtrar)
     notificacao = BottomSheet(content=Container(
         padding=50,
         content=Column([
-            filtro,
-            ElevatedButton(text="Aplicar", on_click=filtrar)
+            filtro
         ], tight=True)
     ))
     window_pesquisar = ResponsiveRow([
@@ -200,6 +198,7 @@ def main(page: Page):
                     )
                 )
                 itens_exibidos.add(nome)
+        
         page.update()
     def deletBase(e):
         exibir = bd()
@@ -218,16 +217,13 @@ def main(page: Page):
         
     )
     filtro = RadioGroup(content=Column([
-        Radio(value='Preço: do menor para o maior',
-              label='Preço: do menor para o maior'),
-        Radio(value='Preço: do maior para o menor',
-              label='Preço: do maior para o menor')
-    ]))
+        Radio(value='1', label='Preço: do menor para o maior'),
+        Radio(value='2', label='Preço: do maior para o menor')
+    ]), on_change=filtrar)
     notificacao = BottomSheet(content=Container(
         padding=50,
         content=Column([
-            filtro,
-            ElevatedButton(text="Aplicar", on_click=fecharNot)
+            filtro
         ], tight=True)
     ))
     window_dados = ResponsiveRow([
@@ -258,8 +254,7 @@ def main(page: Page):
         )
     ])
     
-    # Pagina Sobre
-    sobre_image = Image(src='assets/4.gif')
+    # Pagina Sobre 
     txt_sobre = Text(value="Eu desenvolvi esse aplicativo, porque eu senti a necessidade de ter um app sempre na mão para fazer pesquisas e comparativos de preço",
                      weight=FontWeight.BOLD, size=20, text_align=TextAlign.CENTER) 
     gitHub = Image(src='assets/GitHub.png', width=100, color='white')
@@ -299,6 +294,10 @@ def main(page: Page):
         )
     ])
     
-    page.add(window_home, window_pesquisar, window_dados, window_sobre)
+    page.add(window_home,
+             window_pesquisar,
+             window_dados,
+             window_sobre
+            )
     
 app(target=main)
