@@ -3,7 +3,7 @@ from requisicao import principal
 from banco_dados import bd
 
 def main(page: Page):
-    global resultado
+    
     page.padding = 0
     page.window.always_on_top = True
     page.window.width = 380
