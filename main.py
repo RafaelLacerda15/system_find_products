@@ -1,5 +1,7 @@
 from flet import *
 from requisicao import principal
+from banco_dados import bd
+from threading import Thread
 
 def main(page: Page):
     
@@ -15,8 +17,13 @@ def main(page: Page):
     
     # Titulo do aplicativo
     page.appbar = AppBar(title=Text(value="System Find Product", weight=FontWeight.BOLD), center_title=True, bgcolor='red')
+    
+    # Notificação
     snack_bar = SnackBar(Text(value='Digite um produto.'))
     page.overlay.append(snack_bar)
+    
+    snack_bar2 = SnackBar(Text(value='Lista Vazia!'))
+    page.overlay.append(snack_bar2)
     
     # Função para trocar de janela
     def changeWindow(e):
@@ -73,18 +80,20 @@ def main(page: Page):
         if not valor_pesquisa:
             snack_bar.open = True
             page.update()
+        contador = 0
         texto_resultado.visible = True
         lista.controls.clear()
         bot = principal(usuario=valor_pesquisa)
         resultado = bot.inicio()
 
         for nome, preco, link, site in resultado:
+            contador += 1
             lista.controls.append(
                 Container(
                     bgcolor=colors.WHITE12,
                     border_radius=15,
                     content=Column([
-                        Text(value=nome, text_align=TextAlign.CENTER, color='white'),
+                        Text(value=f'{contador}: {nome}', text_align=TextAlign.CENTER, color='white'),
                         Text(value=preco, text_align=TextAlign.CENTER, color='white'),
                         TextButton(text=site, url=link, style=ButtonStyle(color='white',bgcolor='blue'))
                     ], horizontal_alignment=CrossAxisAlignment.CENTER)
@@ -92,9 +101,16 @@ def main(page: Page):
             )
             
         page.update()
+    def clearList(e):
+        texto_resultado.visible = False
+        lista.controls.clear()
+        page.update()
     def filtrar(e):
-        pass
-        
+        if filtro.value == "1":
+            print('Escolheu: 1')
+        elif filtro.value == "2":
+            print('Escolheu: 2')
+            
     lista = GridView(
         expand=1,
         runs_count=5,
@@ -109,16 +125,16 @@ def main(page: Page):
     texto_resultado = Text(value='Resultado', weight=FontWeight.BOLD)
     texto_resultado.visible = False
     botão_pesquisar = IconButton(
-        icon=icons.SEND, hover_color='green', on_click=fazerPesquisa)
+        icon=icons.SEND, hover_color='green', on_click=fazerPesquisa, tooltip='Pesquisar')
     filtro = RadioGroup(content=Column([
-        Radio(value='Preço: do menor para o maior', label='Preço: do menor para o maior'),
-        Radio(value='Preço: do maior para o menor', label='Preço: do maior para o menor')
+        Radio(value='1', label='Preço: do menor para o maior'),
+        Radio(value='2', label='Preço: do maior para o menor')
     ]))
     notificacao = BottomSheet(content=Container(
         padding=50,
         content=Column([
             filtro,
-            ElevatedButton(text="Aplicar", on_click=filtrar('asc'))
+            ElevatedButton(text="Aplicar", on_click=filtrar)
         ], tight=True)
     ))
     window_pesquisar = ResponsiveRow([
@@ -145,7 +161,8 @@ def main(page: Page):
                                             Row([
                                                 texto_resultado,
                                                 Container(width=100),
-                                                IconButton(icon=icons.FILTER_LIST, on_click=abirNot)
+                                                IconButton(icon=icons.CLEAR_ALL, on_click=clearList, tooltip='Limpar lista'),
+                                                IconButton(icon=icons.FILTER_LIST, on_click=abirNot, tooltip='Filtrar'),
                                             ],alignment=MainAxisAlignment.END)
                                         ),
                                         lista
@@ -160,6 +177,46 @@ def main(page: Page):
     ])
     
     # Pagina de dados
+    def exibirPesquisa(e):
+        exibir = bd()
+        resultado = exibir.selectAll()
+        contador = 0
+        itens_exibidos = set()
+        if not resultado:
+            snack_bar2.open = True
+            
+        for nome, preco, link, site in resultado:
+            if nome not in itens_exibidos:
+                contador += 1
+                lista2.controls.append(
+                    Container(
+                        bgcolor=colors.WHITE12,
+                        border_radius=15,
+                        content=Column([
+                            Text(value=f'{contador}: {nome}', text_align=TextAlign.CENTER, color='white'),
+                            Text(value=preco, text_align=TextAlign.CENTER, color='white'),
+                            TextButton(text=site, url=link, style=ButtonStyle(color='white', bgcolor='blue'))
+                        ], horizontal_alignment=CrossAxisAlignment.CENTER)
+                    )
+                )
+                itens_exibidos.add(nome)
+        page.update()
+    def deletBase(e):
+        exibir = bd()
+        deletar = exibir.deletarBanco()
+        
+        lista2.controls.clear()
+        page.update()
+    
+    lista2 = GridView(
+        expand=1,
+        runs_count=5,
+        max_extent=200,
+        child_aspect_ratio=1.0,
+        spacing=50,
+        run_spacing=5,
+        
+    )
     filtro = RadioGroup(content=Column([
         Radio(value='Preço: do menor para o maior',
               label='Preço: do menor para o maior'),
@@ -188,9 +245,11 @@ def main(page: Page):
                         content=Container(
                             Column([
                                 Row([
-                                    IconButton(icon=icons.FILTER_LIST, on_click=abirNot),
-                                    IconButton(icon=icons.DELETE)
-                                ], alignment=MainAxisAlignment.END)
+                                    IconButton(icon=icons.VISIBILITY, on_click=exibirPesquisa, tooltip='Mostrar Dados'),
+                                    IconButton(icon=icons.FILTER_LIST, on_click=abirNot, tooltip='Filtrar'),
+                                    IconButton(icon=icons.DELETE, on_click=deletBase, tooltip='Deletar Dados')
+                                ], alignment=MainAxisAlignment.END),
+                                lista2
                             ], horizontal_alignment=CrossAxisAlignment.END)
                         )
                     )

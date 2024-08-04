@@ -21,5 +21,9 @@ class bd:
         self.con.commit()
 
     def selectAll(self):
-        self.c.execute('SELECT nome, preco FROM resultados')
+        self.c.execute('SELECT nome, preco, link, site FROM resultados')
         return self.c.fetchall()
+
+    def deletarBanco(self):
+        self.c.execute('DELETE FROM resultados')
+        self.con.commit()
