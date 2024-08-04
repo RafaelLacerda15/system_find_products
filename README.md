@@ -13,7 +13,7 @@ Projeto feito para fins de aprendizagem, mas com proposito de fazer pesquisa de 
 Para usar este projeto, siga as instruções abaixo:
 
 1. Clone o repositório
-http://github.com/RafaelLacerda/system_find_products.git
+http://github.com/RafaelLacerda15/system_find_products.git
 2. Navegue até o diretório
 system_find_products
 3. Execute o arquivo principal
